@@ -634,16 +634,29 @@ function SheetChrome({ theme, p, sheet, title, code, label, highlight, children,
   const eyebrowP = seg(p, 0.05, 0.22);
   const blockP   = seg(p, 0.08, 0.26);
 
+  // Layered parallax: grid + bg drift vs foreground copy (subtle, keeps type crisp).
+  const breath = Math.sin(p * Math.PI * 2 * 1.22) * 4.5 + (p - 0.5) * 11;
+  const bx = breath * 0.82;
+  const by = breath * 0.52;
+
   return (
     <g>
       <SceneBg theme={theme} />
-      <DraftGrid theme={theme} opacity={gridP * 0.85} />
-      <SheetFrame theme={theme} opacity={frameP} />
-      <SheetGridLabels theme={theme} opacity={frameP * 0.92} highlight={highlight} />
-      <SheetEyebrow theme={theme} opacity={eyebrowP} code={code} label={label} />
-      {children}
+      <g transform={`translate(${bx * 0.92}, ${by * 0.92})`}>
+        <DraftGrid theme={theme} opacity={gridP * 0.85} />
+      </g>
+      <g transform={`translate(${bx * 0.36}, ${by * 0.36})`}>
+        <SheetFrame theme={theme} opacity={frameP} />
+        <SheetGridLabels theme={theme} opacity={frameP * 0.92} highlight={highlight} />
+        <SheetEyebrow theme={theme} opacity={eyebrowP} code={code} label={label} />
+      </g>
+      <g transform={`translate(${-bx * 0.44}, ${-by * 0.44})`}>
+        {children}
+      </g>
       {showTitleBlock && (
-        <TitleBlock theme={theme} opacity={blockP} sheet={sheet} title={title} />
+        <g transform={`translate(${bx * 0.2}, ${by * 0.2})`}>
+          <TitleBlock theme={theme} opacity={blockP} sheet={sheet} title={title} />
+        </g>
       )}
     </g>
   );

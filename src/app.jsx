@@ -13,6 +13,49 @@ const smoothstep = (t) => {
   return x * x * (3 - 2 * x);
 };
 
+/**
+ * Cinematic scene envelope: punch-in on enter, subtle drift mid-shot, push-out on exit.
+ * Works with opacity crossfade so transitions never feel like flat slideshow fades.
+ */
+function sceneTransform(progress, start, duration, sceneIndex = 0) {
+  const wallT = progress * DURATION_SECONDS;
+  const s = wallT - start;
+  const { VW: W, VH: H, lerp, easeOut, easeIn, clamp } = SH;
+  const cx = W / 2;
+  const cy = H / 2;
+  const dir = sceneIndex % 2 === 0 ? 1 : -1;
+  let scale = 1;
+  let tx = 0;
+  let ty = 0;
+  let rot = 0;
+
+  if (s >= -FADE && s < FADE) {
+    const u = clamp((s + FADE) / FADE, 0, 1);
+    const e = smoothstep(u);
+    scale *= lerp(1.118, 1, easeOut(e));
+    ty += lerp(64, 0, easeOut(e));
+    tx += lerp(-26 * dir, 0, easeOut(e));
+  }
+
+  if (s > duration - FADE && s <= duration + FADE * 0.65) {
+    const u = clamp((s - (duration - FADE)) / FADE, 0, 1);
+    const e = smoothstep(u);
+    scale *= lerp(1, 1.09, easeIn(e));
+    ty += lerp(0, -92, easeIn(e));
+    tx += lerp(0, 32 * dir, easeIn(e));
+    rot += lerp(0, -0.65 * dir, easeIn(e));
+  }
+
+  if (s >= FADE && s <= duration - FADE) {
+    const span = Math.max(duration - 2 * FADE, 0.001);
+    const driftPhase = clamp((s - FADE) / span, 0, 1);
+    ty += Math.sin(driftPhase * Math.PI * 4.5) * 2.2;
+    tx += Math.cos(driftPhase * Math.PI * 3) * 1.2 * dir;
+  }
+
+  return `translate(${cx}, ${cy}) rotate(${rot}) scale(${scale}) translate(${-cx + tx}, ${-cy + ty})`;
+}
+
 /** Timeline — longer scenes so copy can be read on mobile (hook + cierre extendidos). */
 const SCENE_SPECS = [
   { id:  1, duration: 9.0,  theme: 'dark',  label: 'Gancho — no editado, programado' },
@@ -93,8 +136,9 @@ function ReelSVG({ progress, svgRef }) {
         if (op <= 0.001) return null;
         const Comp = SCENE_COMPS[i];
         const sp = sceneProgress(progress, scene.start, scene.duration);
+        const xf = sceneTransform(progress, scene.start, scene.duration, i);
         return (
-          <g key={scene.id} opacity={op}>
+          <g key={scene.id} opacity={op} transform={xf}>
             <Comp p={sp} />
           </g>
         );

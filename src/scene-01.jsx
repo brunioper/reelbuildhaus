@@ -7,7 +7,7 @@ const RL = window.REEL_LAYOUT;
 function Scene01({ p }) {
   const {
     C, FONT, FONT_MONO, VW, VH,
-    lerp, easeInOut, clamp,
+    lerp, easeInOut, easeOut, clamp,
     SheetChrome, DraftLine, BlueDot,
   } = _S1;
 
@@ -27,6 +27,11 @@ function Scene01({ p }) {
   const badgeIn = revealAfter(p, 0.34, 0.14);
   const diagIn = revealAfter(p, 0.08, 0.32);
   const drift = easeInOut(clamp((p - 0.15) / 0.85, 0, 1));
+
+  const hlPop = lerp(1.064, 1, hlIn);
+  const progPeak = Math.sin(Math.min(Math.max(progIn, 0), 1) * Math.PI);
+  const progZoom = 1 + progPeak * 0.052;
+  const impact = easeOut(clamp(1 - Math.abs(p - 0.37) / 0.055, 0, 1)) * 2.8;
 
   const edge = REEL.SAFE_X;
   const colW = REEL.CONTENT_W;
@@ -50,6 +55,7 @@ function Scene01({ p }) {
   const illustrationTop = VH - REEL.SAFE_Y - 400;
 
   const CX = VW / 2;
+  const hlAnchorY = firstBaseline + ((h1.length - 1) * lh) / 2;
 
   return (
     <SheetChrome
@@ -103,7 +109,11 @@ function Scene01({ p }) {
         })}
       </g>
 
-      <g opacity={hlIn} filter="url(#softRevealBlur)">
+      <g
+        opacity={hlIn}
+        filter="url(#softRevealBlur)"
+        transform={`translate(${CX}, ${hlAnchorY}) scale(${hlPop}) translate(${-CX}, ${-hlAnchorY})`}
+      >
         <MultilineText
           x={edge}
           yStart={firstBaseline}
@@ -118,40 +128,45 @@ function Scene01({ p }) {
         />
       </g>
 
-      <text
-        x={edge}
-        y={progY}
-        fill={C.blue}
-        fontFamily={FONT}
-        fontSize={76}
-        fontWeight={800}
-        letterSpacing={-1}
+      <g
         opacity={progIn}
+        transform={`translate(${edge + impact}, ${progY}) scale(${progZoom}) translate(${-edge}, ${-progY})`}
       >
-        Lo programamos.
-      </text>
-      <line
-        x1={edge}
-        y1={progY + 20}
-        x2={lerp(edge, edge + 580, progIn)}
-        y2={progY + 20}
-        stroke={C.blue}
-        strokeWidth={4}
-        opacity={progIn}
-        strokeLinecap="round"
-      />
+        <text
+          x={edge}
+          y={progY}
+          fill={C.blue}
+          fontFamily={FONT}
+          fontSize={76}
+          fontWeight={800}
+          letterSpacing={-1}
+        >
+          Lo programamos.
+        </text>
+        <line
+          x1={edge}
+          y1={progY + 20}
+          x2={lerp(edge, edge + 580, progIn)}
+          y2={progY + 20}
+          stroke={C.blue}
+          strokeWidth={4}
+          strokeLinecap="round"
+        />
+      </g>
 
-      <BadgePill
-        cx={edge + colW / 2}
-        cy={progY + 96}
-        label="Link a la app en la descripción"
-        theme="dark"
-        font={FONT}
-        opacity={badgeIn}
-        fontSize={29}
-        padX={32}
-        padY={16}
-      />
+      <g transform={`translate(0, ${lerp(40, 0, badgeIn)})`}>
+        <BadgePill
+          cx={edge + colW / 2}
+          cy={progY + 96}
+          label="Link a la app en la descripción"
+          theme="dark"
+          font={FONT}
+          opacity={badgeIn}
+          fontSize={29}
+          padX={32}
+          padY={16}
+        />
+      </g>
 
       <text
         x={edge}

@@ -19,6 +19,8 @@ function Scene02({ p }) {
   const dims  = seg(p, 0.68, 0.88);
   const dotP  = clamp((p - 0.55) / 0.42, 0, 1);
 
+  const trussSnap = lerp(0.925, 1, easeOut(nodes));
+
   // Truss apex + base nodes
   const APEX = [540, 1040];
   const BL   = [220, 1300];
@@ -95,7 +97,10 @@ function Scene02({ p }) {
         CADA NODO CARGA PESO
       </text>
 
-      {/* ── TRUSS DIAGRAM ─────────────────────────────────────────────────── */}
+      {/* ── TRUSS DIAGRAM — snap-in + cursor ──────────────────────────────── */}
+      <g
+        transform={`translate(${540}, ${1186}) scale(${trussSnap}) translate(${-540}, ${-1186})`}
+      >
       {/* Ground line under truss */}
       <g opacity={nodes * 0.7}>
         <line x1={120} y1={1340} x2={VW - 120} y2={1340}
@@ -176,6 +181,7 @@ function Scene02({ p }) {
       {/* Traveling dot */}
       {dotP > 0 && <BlueDot x={dx} y={dy} r={7}
         opacity={easeOut(clamp(dotP * 5, 0, 1))} />}
+      </g>
 
       {/* Bottom annotation */}
       <g opacity={dims}>

@@ -5,7 +5,7 @@ const S12 = window.SHARED;
 const RL = window.REEL_LAYOUT;
 
 function Scene12({ p }) {
-  const { C, FONT, FONT_MONO, VW, clamp, SheetChrome } = S12;
+  const { C, FONT, FONT_MONO, VW, clamp, SheetChrome, easeOut, lerp } = S12;
 
   const {
     REEL,
@@ -73,6 +73,9 @@ function Scene12({ p }) {
   const firstBaseline = REEL.SAFE_Y + 148;
   const lhH = hlFit.size * 1.05;
   const lastHB = firstBaseline + (hlFit.lines.length - 1) * lhH;
+  const hlMidY = firstBaseline + ((hlFit.lines.length - 1) * lhH) / 2;
+  const hlScaleMot = lerp(1.064, 1, easeOut(hl));
+  const memoScaleMot = lerp(1.038, 1, easeOut(memoOp));
   const subStart = lastHB + REEL.HEAD_SUB_GAP + subFit.size;
 
   const memoStart =
@@ -80,6 +83,12 @@ function Scene12({ p }) {
   const memoH = memoFit.lines.length * (memoFit.size * 1.18);
 
   const ctaTop = memoStart + memoH + 36;
+
+  const ctaEnter = lerp(1.046, 1, easeOut(Math.min(cta * 1.2, 1)));
+  const pulseEnv = clamp((p - 0.5) / 0.22, 0, 1);
+  const ctaPulse =
+    1 + 0.024 * Math.sin(pulseEnv * Math.PI) * Math.exp(-pulseEnv * 1.35);
+  const ctaMotion = ctaEnter * ctaPulse;
 
   return (
     <SheetChrome
@@ -101,17 +110,22 @@ function Scene12({ p }) {
         opacity={backdrop * 0.32}
       />
 
-      <MultilineCenter
-        cx={CX}
-        yStart={firstBaseline}
-        lines={hlFit.lines}
-        fontSize={hlFit.size}
-        fontWeight={850}
-        fill={C.navy}
-        fontFamily={FONT}
-        lineHeight={1.05}
+      <g
         opacity={hl}
-      />
+        transform={`translate(${CX}, ${hlMidY}) scale(${hlScaleMot}) translate(${-CX}, ${-hlMidY})`}
+      >
+        <MultilineCenter
+          cx={CX}
+          yStart={firstBaseline}
+          lines={hlFit.lines}
+          fontSize={hlFit.size}
+          fontWeight={850}
+          fill={C.navy}
+          fontFamily={FONT}
+          lineHeight={1.05}
+          opacity={1}
+        />
+      </g>
 
       <MultilineCenter
         cx={CX}
@@ -125,16 +139,21 @@ function Scene12({ p }) {
         opacity={sub}
       />
 
-      <MemoRibbon
-        cx={CX}
-        yStart={memoStart}
-        lines={memoFit.lines}
-        fontSize={memoFit.size}
-        fill={C.navy}
-        fontFamily={FONT}
+      <g
         opacity={memoOp}
-        fontWeight={850}
-      />
+        transform={`translate(${CX}, ${memoStart + memoH / 2}) scale(${memoScaleMot}) translate(${-CX}, ${-(memoStart + memoH / 2)})`}
+      >
+        <MemoRibbon
+          cx={CX}
+          yStart={memoStart}
+          lines={memoFit.lines}
+          fontSize={memoFit.size}
+          fill={C.navy}
+          fontFamily={FONT}
+          opacity={1}
+          fontWeight={850}
+        />
+      </g>
 
       <DualCTA
         cx={CX}
@@ -145,6 +164,7 @@ function Scene12({ p }) {
         font={FONT}
         opacity={cta}
         dominant
+        motionScale={ctaMotion}
       />
 
       <text

@@ -6,7 +6,7 @@ const S7 = window.SHARED;
 
 function Scene07({ p }) {
   const { C, FONT, FONT_MONO, VW,
-    seg, lerp, easeOut, clamp,
+    seg, lerp, easeOut, easeInOut, clamp,
     SheetChrome, DraftLine, DraftRect, DimLine, DetailBubble } = S7;
 
   const hl1   = seg(p, 0.08, 0.28);
@@ -21,6 +21,9 @@ function Scene07({ p }) {
   const dims  = seg(p, 0.74, 0.90);
   const annot = seg(p, 0.84, 0.96);
   const polish = easeOut(clamp((p - 0.46) / 0.44, 0, 1));
+
+  const scrollEase = easeInOut(clamp((p - 0.34) / 0.42, 0, 1));
+  const scrollY = lerp(0, -118, scrollEase);
 
   // Section frame — sized to clear the bottom title block.
   const FX = 130, FY = 920, FW = VW - 260, FH = 760;
@@ -60,6 +63,12 @@ function Scene07({ p }) {
         SECTION A–A' · 5 LAYERS
       </text>
 
+      <defs>
+        <clipPath id="bh-s07-interior" clipPathUnits="userSpaceOnUse">
+          <rect x={FX + 6} y={FY + 6} width={FW - 12} height={FH - 12} />
+        </clipPath>
+      </defs>
+
       {/* Outer frame */}
       <g opacity={frame}>
         <rect x={FX} y={FY} width={FW} height={FH}
@@ -75,6 +84,8 @@ function Scene07({ p }) {
           stroke="rgba(247,250,255,0.55)" strokeWidth={1} />
       </g>
 
+      <g clipPath="url(#bh-s07-interior)">
+        <g transform={`translate(0, ${scrollY})`}>
       {/* Sections (floors of the website) */}
       {SECTIONS.map((s, i) => {
         const o = s.o();
@@ -256,6 +267,8 @@ function Scene07({ p }) {
           ))}
         </g>
       )}
+        </g>
+      </g>
 
       {/* Total height */}
       {dims > 0 && (

@@ -224,6 +224,8 @@ function DualCTA({
   font,
   opacity = 1,
   dominant = false,
+  /** Extra uniform scale (e.g. confident push-in + one-shot pulse), anchored on stack center */
+  motionScale = 1,
 }) {
   const C = window.SHARED.C;
   const pad = dominant ? 16 : 40;
@@ -235,9 +237,14 @@ function DualCTA({
   const fsSec = (dominant ? REEL.MIN_CTA_PX + 6 : REEL.MIN_CTA_PX + 2);
   const inkBtn = C.white;
   const inkSecondary = theme === 'dark' ? C.white : C.navy;
+  const gap = dominant ? 22 : 28;
+  const stackH = primaryH + gap + secH;
+  const pcx = cx;
+  const pcy = yPrimaryTop + stackH / 2;
 
   return (
     <g opacity={opacity}>
+      <g transform={`translate(${pcx}, ${pcy}) scale(${motionScale}) translate(${-pcx}, ${-pcy})`}>
       <rect
         x={cx - primaryW / 2}
         y={yPrimaryTop}
@@ -262,7 +269,7 @@ function DualCTA({
 
       <rect
         x={cx - secW / 2}
-        y={yPrimaryTop + primaryH + (dominant ? 22 : 28)}
+        y={yPrimaryTop + primaryH + gap}
         width={secW}
         height={secH}
         rx={secH / 2}
@@ -275,7 +282,7 @@ function DualCTA({
         y={
           yPrimaryTop +
           primaryH +
-          (dominant ? 22 : 28) +
+          gap +
           secH / 2 +
           fsSec * 0.28
         }
@@ -288,6 +295,7 @@ function DualCTA({
       >
         {secondaryLabel}
       </text>
+      </g>
     </g>
   );
 }

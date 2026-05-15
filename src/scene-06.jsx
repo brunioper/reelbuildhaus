@@ -59,6 +59,9 @@ function Scene06({ p }) {
   const dotX = startX + totalW * flow;
   const dotY = PY + 132;
 
+  const jMid = JY + 21;
+  const journeySnap = lerp(1.048, 1, easeOut(Math.min(journeyOp * 1.25, 1)));
+
   return (
     <SheetChrome
       theme="light"
@@ -85,26 +88,30 @@ function Scene06({ p }) {
         De la primera impresión al contacto.
       </text>
 
-      {/* Journey hero — muy grande para mobile */}
-      <text
-        x={CX}
-        y={JY}
-        fill={C.navy}
-        fontFamily={FONT}
-        fontSize={46}
-        fontWeight={850}
-        textAnchor="middle"
-        letterSpacing={-0.5}
+      {/* Journey hero — snap-in scale + muy legible */}
+      <g
         opacity={journeyOp}
+        transform={`translate(${CX}, ${jMid}) scale(${journeySnap}) translate(${-CX}, ${-jMid})`}
       >
-        Llega → Entiende → Confía → Contacta
-      </text>
-      <text x={CX} y={JY + 42} fill={C.blue} fontFamily={FONT_MONO}
-        fontSize={17} fontWeight={700} letterSpacing={3}
-        textAnchor="middle"
-        opacity={journeyOp * 0.95}>
-        UNA SOLA LÍNEA · UN SOLO OBJETIVO
-      </text>
+        <text
+          x={CX}
+          y={JY}
+          fill={C.navy}
+          fontFamily={FONT}
+          fontSize={46}
+          fontWeight={850}
+          textAnchor="middle"
+          letterSpacing={-0.5}
+        >
+          Llega → Entiende → Confía → Contacta
+        </text>
+        <text x={CX} y={JY + 42} fill={C.blue} fontFamily={FONT_MONO}
+          fontSize={17} fontWeight={700} letterSpacing={3}
+          textAnchor="middle"
+          opacity={0.95}>
+          UNA SOLA LÍNEA · UN SOLO OBJETIVO
+        </text>
+      </g>
 
       <g opacity={planP}>
         <rect x={PX} y={PY} width={PW} height={PH}
