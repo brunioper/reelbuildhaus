@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23071D35'/><rect x='8' y='6' width='16' height='20' fill='none' stroke='%23246BFF' stroke-width='2'/></svg>" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Build Haus Studio — Reel (drafted)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="src/index.css" />
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- React + Babel (pinned versions per house rules) -->
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <!-- Shared primitives + scene files -->
+  <script type="text/babel" src="src/shared.jsx"></script>
+  <script type="text/babel" src="src/layout-engine.jsx"></script>
+  <script type="text/babel" src="src/scene-01.jsx"></script>
+  <script type="text/babel" src="src/scene-02.jsx"></script>
+  <script type="text/babel" src="src/scene-03.jsx"></script>
+  <script type="text/babel" src="src/scene-04.jsx"></script>
+  <script type="text/babel" src="src/scene-05.jsx"></script>
+  <script type="text/babel" src="src/scene-06.jsx"></script>
+  <script type="text/babel" src="src/scene-07.jsx"></script>
+  <script type="text/babel" src="src/scene-08.jsx"></script>
+  <script type="text/babel" src="src/scene-09.jsx"></script>
+  <script type="text/babel" src="src/scene-10.jsx"></script>
+  <script type="text/babel" src="src/scene-11.jsx"></script>
+  <script type="text/babel" src="src/scene-12.jsx"></script>
+
+  <!-- App -->
+  <script type="text/babel" src="src/app.jsx"></script>
+  <script type="text/babel" data-presets="react">
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<window.App />);
+  </script>
+</body>
+</html>
