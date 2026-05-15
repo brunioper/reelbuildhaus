@@ -1,0 +1,27 @@
+{
+  "name": "reelbuildhaus",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "remotion": "remotion studio src/remotion/index.tsx",
+    "render": "remotion render src/remotion/index.tsx BuildHausReel out/buildhaus-reel.mp4",
+    "render:still": "remotion still src/remotion/index.tsx BuildHausReel out/frame.png --frame=120"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "4.0.461"
+  },
+  "devDependencies": {
+    "@remotion/cli": "4.0.461",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.6"
+  }
+}
