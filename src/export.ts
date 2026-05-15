@@ -1,3 +1,4 @@
+import type { RefObject } from 'react';
 import { VIDEO_WIDTH, VIDEO_HEIGHT, FPS, TOTAL_FRAMES, DURATION_SECONDS } from './constants';
 import { setupExportAudio, type AudioConfig } from './audio';
 
@@ -38,7 +39,7 @@ function chooseMimeType(): string {
 }
 
 export async function exportWebM(
-  svgRef: React.RefObject<SVGSVGElement | null>,
+  svgRef: RefObject<SVGSVGElement | null>,
   setProgress: (p: number) => void,
   setFrame: (f: (prev: number) => number) => void,
   audioCfg: AudioConfig,
@@ -122,21 +123,17 @@ export async function exportWebM(
 }
 
 export async function exportPNGFrames(
-  svgRef: React.RefObject<SVGSVGElement | null>,
+  svgRef: RefObject<SVGSVGElement | null>,
   setProgress: (p: number) => void,
 ): Promise<void> {
   if (!svgRef.current) throw new Error('SVG ref not available');
 
-  const { default: JSZip } = await import('jszip');
-  const zip = new JSZip();
   const canvas = document.createElement('canvas');
   canvas.width = VIDEO_WIDTH;
   canvas.height = VIDEO_HEIGHT;
-  const ctx = canvas.getContext('2d')!;
 
-  // Export every other frame to keep zip size reasonable.
-  const step = 2;
-  let exported = 0;
+  // Export every 6th frame (~5 fps sample) as individual PNGs downloaded sequentially.
+  const step = 6;
 
   for (let frame = 0; frame <= TOTAL_FRAMES; frame += step) {
     const progress = frame / TOTAL_FRAMES;
@@ -147,23 +144,17 @@ export async function exportPNGFrames(
     await rasterizeSVG(svgRef.current!, canvas);
 
     const dataURL = canvas.toDataURL('image/png');
-    const base64 = dataURL.split(',')[1];
-    zip.file(`frame-${String(frame).padStart(4, '0')}.png`, base64, { base64: true });
+    const a = document.createElement('a');
+    a.href = dataURL;
+    a.download = `frame-${String(frame).padStart(4, '0')}.png`;
+    a.click();
 
-    exported++;
     setProgress(frame / TOTAL_FRAMES);
+    // Small delay to avoid flooding the browser download queue.
+    await new Promise<void>(resolve => setTimeout(resolve, 80));
   }
 
-  ctx; // suppress unused warning
-  const blob = await zip.generateAsync({ type: 'blob' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'build-haus-reel-frames.zip';
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 5000);
-
   if (import.meta.env.DEV) {
-    console.log('[export-png] exported', exported, 'frames');
+    console.log('[export-png] done');
   }
 }
