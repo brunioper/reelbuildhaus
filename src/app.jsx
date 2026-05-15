@@ -14,8 +14,8 @@ const smoothstep = (t) => {
 };
 
 /**
- * Cinematic scene envelope: punch-in on enter, subtle drift mid-shot, push-out on exit.
- * Works with opacity crossfade so transitions never feel like flat slideshow fades.
+ * Cinematic scene envelope: punch-in on enter, stable hold, push-out on exit.
+ * No continuous oscillation — that reads as “bounce” on long reads.
  */
 function sceneTransform(progress, start, duration, sceneIndex = 0) {
   const wallT = progress * DURATION_SECONDS;
@@ -44,13 +44,6 @@ function sceneTransform(progress, start, duration, sceneIndex = 0) {
     ty += lerp(0, -92, easeIn(e));
     tx += lerp(0, 32 * dir, easeIn(e));
     rot += lerp(0, -0.65 * dir, easeIn(e));
-  }
-
-  if (s >= FADE && s <= duration - FADE) {
-    const span = Math.max(duration - 2 * FADE, 0.001);
-    const driftPhase = clamp((s - FADE) / span, 0, 1);
-    ty += Math.sin(driftPhase * Math.PI * 4.5) * 2.2;
-    tx += Math.cos(driftPhase * Math.PI * 3) * 1.2 * dir;
   }
 
   return `translate(${cx}, ${cy}) rotate(${rot}) scale(${scale}) translate(${-cx + tx}, ${-cy + ty})`;

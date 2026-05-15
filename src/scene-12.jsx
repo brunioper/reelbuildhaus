@@ -85,10 +85,7 @@ function Scene12({ p }) {
   const ctaTop = memoStart + memoH + 36;
 
   const ctaEnter = lerp(1.046, 1, easeOut(Math.min(cta * 1.2, 1)));
-  const pulseEnv = clamp((p - 0.5) / 0.22, 0, 1);
-  const ctaPulse =
-    1 + 0.024 * Math.sin(pulseEnv * Math.PI) * Math.exp(-pulseEnv * 1.35);
-  const ctaMotion = ctaEnter * ctaPulse;
+  const ctaMotion = ctaEnter;
 
   return (
     <SheetChrome
