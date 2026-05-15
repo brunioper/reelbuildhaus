@@ -1,0 +1,9 @@
+# Dependencies — do NOT commit node_modules
+node_modules/
+
+# Editor
+.DS_Store
+*.local
+
+# TypeScript build cache
+node_modules/.tmp/
