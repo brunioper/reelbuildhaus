@@ -4,22 +4,34 @@ const REEL = {
   VW: 1080,
   VH: 1920,
   SAFE_X: 80,
-  SAFE_Y: 120,
+  /** Top/bottom safe inset — copy & CTAs must stay inside */
+  SAFE_Y: 140,
   /** Central column width inside safe horizontal padding */
   get CONTENT_W() {
     return this.VW - this.SAFE_X * 2;
   },
-  MIN_HEADLINE_PX: 52,
-  MAX_HEADLINE_PX: 118,
-  MIN_SUB_PX: 28,
-  MAX_SUB_PX: 40,
-  MIN_BADGE_PX: 22,
-  MIN_CTA_PX: 26,
-  HEAD_SUB_GAP: 28,
-  SUB_BADGE_GAP: 22,
-  // Vertical bands — illustration stays below `contentReserveBottom`
-  ILLUSTRATION_TOP_MIN: 640,
+  MIN_HEADLINE_PX: 58,
+  MAX_HEADLINE_PX: 122,
+  MIN_SUB_PX: 32,
+  MAX_SUB_PX: 44,
+  MIN_BADGE_PX: 24,
+  MIN_CTA_PX: 30,
+  HEAD_SUB_GAP: 32,
+  SUB_BADGE_GAP: 24,
+  ILLUSTRATION_TOP_MIN: 660,
 };
+
+/** Eased opacity 0→1 after `start`, over `duration` (fractions of scene `p`). Holds at 1. */
+function revealAfter(p, start = 0.06, duration = 0.18) {
+  if (p <= start) return 0;
+  const u = Math.min(1, (p - start) / duration);
+  return 1 - Math.pow(1 - u, 3);
+}
+
+/** Scale-in helper (returns ~0..1) for restrained motion */
+function scaleReveal(p, start = 0.05, duration = 0.2) {
+  return revealAfter(p, start, duration);
+}
 
 let _canvas;
 function _ctx() {
@@ -202,7 +214,7 @@ function BadgePill({
   );
 }
 
-/** Dominant CTA pair for closing scene */
+/** Dominant CTA pair — optional `dominant` boosts size for closing scene */
 function DualCTA({
   cx,
   yPrimaryTop,
@@ -211,12 +223,16 @@ function DualCTA({
   theme,
   font,
   opacity = 1,
+  dominant = false,
 }) {
   const C = window.SHARED.C;
-  const primaryW = Math.min(680, REEL.CONTENT_W - 40);
-  const primaryH = 96;
-  const secW = Math.min(520, REEL.CONTENT_W - 80);
-  const secH = 76;
+  const pad = dominant ? 16 : 40;
+  const primaryW = Math.min(dominant ? 760 : 680, REEL.CONTENT_W - pad);
+  const primaryH = dominant ? 112 : 96;
+  const secW = Math.min(dominant ? 680 : 520, REEL.CONTENT_W - (dominant ? 32 : 80));
+  const secH = dominant ? 92 : 76;
+  const fsPri = (dominant ? REEL.MIN_CTA_PX + 10 : REEL.MIN_CTA_PX + 6);
+  const fsSec = (dominant ? REEL.MIN_CTA_PX + 6 : REEL.MIN_CTA_PX + 2);
   const inkBtn = C.white;
   const inkSecondary = theme === 'dark' ? C.white : C.navy;
 
@@ -233,39 +249,78 @@ function DualCTA({
       />
       <text
         x={cx}
-        y={yPrimaryTop + primaryH / 2 + REEL.MIN_CTA_PX * 0.35}
+        y={yPrimaryTop + primaryH / 2 + fsPri * 0.35}
         fill={inkBtn}
         fontFamily={font}
-        fontSize={REEL.MIN_CTA_PX + 6}
+        fontSize={fsPri}
         fontWeight={800}
         textAnchor="middle"
-        letterSpacing={1}
+        letterSpacing={0.5}
       >
         {primaryLabel}
       </text>
 
       <rect
         x={cx - secW / 2}
-        y={yPrimaryTop + primaryH + 28}
+        y={yPrimaryTop + primaryH + (dominant ? 22 : 28)}
         width={secW}
         height={secH}
         rx={secH / 2}
         fill={theme === 'dark' ? 'rgba(247,250,255,0.06)' : '#FFFFFF'}
         stroke={C.blue}
-        strokeWidth={2}
+        strokeWidth={dominant ? 2.5 : 2}
       />
       <text
         x={cx}
-        y={yPrimaryTop + primaryH + 28 + secH / 2 + REEL.MIN_CTA_PX * 0.28}
+        y={
+          yPrimaryTop +
+          primaryH +
+          (dominant ? 22 : 28) +
+          secH / 2 +
+          fsSec * 0.28
+        }
         fill={inkSecondary}
         fontFamily={font}
-        fontSize={REEL.MIN_CTA_PX + 2}
+        fontSize={fsSec}
         fontWeight={750}
         textAnchor="middle"
-        letterSpacing={0.5}
+        letterSpacing={0.4}
       >
         {secondaryLabel}
       </text>
+    </g>
+  );
+}
+
+/** Large centered memo lines (social CTA sentence) */
+function MemoRibbon({
+  cx,
+  yStart,
+  lines,
+  fontSize,
+  fill,
+  fontFamily,
+  opacity = 1,
+  fontWeight = 800,
+}) {
+  const lh = fontSize * 1.18;
+  return (
+    <g opacity={opacity}>
+      {lines.map((ln, i) => (
+        <text
+          key={i}
+          x={cx}
+          y={yStart + i * lh}
+          fill={fill}
+          fontFamily={fontFamily}
+          fontSize={fontSize}
+          fontWeight={fontWeight}
+          textAnchor="middle"
+          letterSpacing={-0.3}
+        >
+          {ln}
+        </text>
+      ))}
     </g>
   );
 }
@@ -277,8 +332,11 @@ window.REEL_LAYOUT = {
   shrinkToFitLines,
   rectsOverlap,
   resolveGraphicBelowCopy,
+  revealAfter,
+  scaleReveal,
   MultilineText,
   MultilineCenter,
   BadgePill,
   DualCTA,
+  MemoRibbon,
 };

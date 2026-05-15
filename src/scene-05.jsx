@@ -1,24 +1,26 @@
-// Scene 05 — Offer Structure (10.5–13s, dark)
-// "Ordenamos la oferta." — building elevation with floors stacked.
+// Scene 05 — Oferta en orden (bloques caóticos → torre clara)
 
 const S5 = window.SHARED;
+const RL = window.REEL_LAYOUT;
 
 function Scene05({ p }) {
   const { C, FONT, FONT_MONO, VW,
-    seg, lerp, easeOut, clamp,
-    SheetChrome, DraftLine, DraftRect, DimLine } = S5;
+    clamp,
+    SheetChrome, DimLine } = S5;
 
-  const hl1   = seg(p, 0.08, 0.28);
-  const hl2   = seg(p, 0.16, 0.36);
-  const sub   = seg(p, 0.26, 0.46);
-  const found = seg(p, 0.34, 0.52);
-  const floor1 = seg(p, 0.42, 0.58);
-  const floor2 = seg(p, 0.50, 0.66);
-  const floor3 = seg(p, 0.56, 0.72);
-  const roof  = seg(p, 0.64, 0.78);
-  const cta   = seg(p, 0.70, 0.85);
-  const dims  = seg(p, 0.78, 0.92);
-  const annot = seg(p, 0.84, 0.96);
+  const { revealAfter } = RL;
+
+  const hl1 = revealAfter(p, 0.05, 0.13);
+  const hl2 = revealAfter(p, 0.12, 0.13);
+  const sub = revealAfter(p, 0.22, 0.16);
+  const found = revealAfter(p, 0.32, 0.14);
+  const chaosFade = clamp(1 - revealAfter(p, 0.28, 0.28) * 1.08, 0, 1);
+  const floor1 = revealAfter(p, 0.42, 0.12);
+  const floor2 = revealAfter(p, 0.48, 0.12);
+  const floor3 = revealAfter(p, 0.54, 0.12);
+  const roof = revealAfter(p, 0.6, 0.12);
+  const cta = revealAfter(p, 0.68, 0.14);
+  const dims = revealAfter(p, 0.76, 0.12);
 
   const CX = VW / 2;
   // Building sits 1000–1620
@@ -62,8 +64,26 @@ function Scene05({ p }) {
       <text x={90} y={596} fill={C.blue} fontFamily={FONT_MONO}
         fontSize={18} fontWeight={700} letterSpacing={3}
         opacity={sub}>
-        ELEVATION SECTION · A–A'
+        CAOS → ARQUITECTURA · SECCIÓN A–A'
       </text>
+
+      {/* Bloques desalineados que desaparecen al ordenar */}
+      <g opacity={chaosFade * clamp(found * 1.4, 0, 1)} aria-hidden="true">
+        {[0, 1, 2, 3, 4, 5].map((i) => (
+          <rect
+            key={i}
+            x={CX - 320 + (i % 3) * 110 + (i * 13) % 30}
+            y={GROUND - 420 + Math.floor(i / 3) * 70}
+            width={140 + i * 12}
+            height={36}
+            rx={10}
+            fill="rgba(226,92,92,0.09)"
+            stroke="rgba(247,250,255,0.22)"
+            strokeWidth={1}
+            transform={`rotate(${-8 + i * 5} ${CX - 120 + i * 20} ${GROUND - 380})`}
+          />
+        ))}
+      </g>
 
       {/* Ground line — hatched */}
       <g opacity={found * 0.8}>
@@ -140,23 +160,27 @@ function Scene05({ p }) {
       })}
 
       {/* Roof / antenna — CTA pill on top */}
-      {cta > 0 && (
-        <g opacity={cta}>
+      {roof > 0 && (
+        <g opacity={roof}>
           {/* Antenna mast */}
           <line x1={CX} y1={GROUND - 470} x2={CX} y2={GROUND - 540}
             stroke="rgba(247,250,255,0.55)" strokeWidth={1.2} />
           <line x1={CX - 8} y1={GROUND - 540} x2={CX + 8} y2={GROUND - 540}
             stroke="rgba(247,250,255,0.55)" strokeWidth={1.2} />
-          {/* CTA pill */}
-          <rect x={CX - 160} y={GROUND - 590} width={320} height={48}
-            rx={24} fill={C.blue} />
-          <text x={CX} y={GROUND - 562} fill={C.white} fontFamily={FONT}
-            fontSize={15} fontWeight={700} textAnchor="middle" letterSpacing={2}>
-            AGENDÁ UN BRIEF →
-          </text>
           <text x={CX} y={GROUND - 600} fill={C.cyan} fontFamily={FONT_MONO}
             fontSize={10} fontWeight={800} textAnchor="middle" letterSpacing={2}>
-            ROOF / CONVERSION
+            TOPE · CONVERSIÓN
+          </text>
+        </g>
+      )}
+      {cta > 0 && (
+        <g opacity={cta}>
+          {/* CTA pill */}
+          <rect x={CX - 180} y={GROUND - 578} width={360} height={52}
+            rx={26} fill={C.blue} filter="url(#ctaGlow)" />
+          <text x={CX} y={GROUND - 546} fill={C.white} fontFamily={FONT}
+            fontSize={17} fontWeight={780} textAnchor="middle" letterSpacing={1.5}>
+            Próximo paso → brief
           </text>
         </g>
       )}

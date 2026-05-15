@@ -7,16 +7,16 @@ const RL = window.REEL_LAYOUT;
 function Scene03({ p }) {
   const {
     C, FONT, FONT_MONO, VW, VH,
-    seg, lerp, easeOut, easeInOut, clamp,
+    lerp, easeOut, easeInOut, clamp,
     SheetChrome, BlueDot,
   } = _S3;
 
-  const { REEL, MultilineText, shrinkToFitLines, wrapTextToLines } = RL;
+  const { REEL, MultilineText, shrinkToFitLines, wrapTextToLines, revealAfter } = RL;
 
   const edge = REEL.SAFE_X;
   const colW = REEL.CONTENT_W;
 
-  const diagIn = seg(p, 0.06, 0.38);
+  const diagIn = revealAfter(p, 0.05, 0.28);
   const hlFit = shrinkToFitLines(
     wrapTextToLines('Una web linda no alcanza.', colW, 108, 850, FONT),
     colW,
@@ -42,15 +42,15 @@ function Scene03({ p }) {
     3,
   );
 
-  const hl = seg(p, 0.14, 0.42);
-  const sub = seg(p, 0.22, 0.52);
-  const path = clamp((p - 0.46) / 0.48, 0, 1);
+  const hl = revealAfter(p, 0.1, 0.18);
+  const sub = revealAfter(p, 0.2, 0.18);
+  const path = clamp((p - 0.42) / 0.48, 0, 1);
   const spark = easeOut(path);
 
   const CX = VW / 2;
-  const routeY = VH - 420;
+  const routeY = VH - REEL.SAFE_Y - 320;
 
-  const firstBaseline = 318;
+  const firstBaseline = REEL.SAFE_Y + 168;
   const lhH = hlFit.size * 1.07;
   const lastHB = firstBaseline + (hlFit.lines.length - 1) * lhH;
   const subBase = lastHB + REEL.HEAD_SUB_GAP + subFit.size;
@@ -200,7 +200,7 @@ function Scene03({ p }) {
         fontSize={17}
         fontWeight={800}
         letterSpacing={2}
-        opacity={seg(p, 0.62, 0.9)}
+        opacity={revealAfter(p, 0.58, 0.14)}
       >
         ARREGLAMOS LA FUNCIÓN ANTES DEL FORMA
       </text>

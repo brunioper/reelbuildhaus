@@ -4,31 +4,46 @@
 const { useRef, useState, useEffect, useCallback, useMemo } = React;
 const SH = window.SHARED;
 
-// Config — kept identical to the user's app
-const DURATION_SECONDS = 42;
+// Config — timeline derived from SCENE_SPECS (see below)
 const FPS = 30;
-const TOTAL_FRAMES = FPS * DURATION_SECONDS;
-const FADE = 0.42;
+const FADE = 0.55;
 
 const smoothstep = (t) => {
   const x = SH.clamp(t, 0, 1);
   return x * x * (3 - 2 * x);
 };
 
-const SCENES = [
-  { id:  1, start:  0,    duration: 5.5, theme: 'dark',  label: 'Gancho programático' },
-  { id:  2, start:  5.5,  duration: 3.5, theme: 'light', label: 'Sistemas, no plantillas' },
-  { id:  3, start:  9,    duration: 3.5, theme: 'dark',  label: 'Conversión primero' },
-  { id:  4, start: 12.5,  duration: 3.5, theme: 'light', label: 'Discovery del negocio' },
-  { id:  5, start: 16,    duration: 3.5, theme: 'dark',  label: 'Arquitectura de oferta' },
-  { id:  6, start: 19.5,  duration: 3.5, theme: 'light', label: 'Recorrido diseñado' },
-  { id:  7, start: 23,    duration: 3.5, theme: 'dark',  label: 'Experiencia desarrollada' },
-  { id:  8, start: 26.5,  duration: 3,   theme: 'light', label: 'Sistema visual' },
-  { id:  9, start: 29.5,  duration: 3.5, theme: 'dark',  label: 'Código escalable' },
-  { id: 10, start: 33,    duration: 3,   theme: 'light', label: 'Optimización CRO' },
-  { id: 11, start: 36,    duration: 3,   theme: 'dark',  label: 'Resultado final' },
-  { id: 12, start: 39,    duration: 3,   theme: 'light', label: 'Llamado a la acción' },
+/** Timeline — longer scenes so copy can be read on mobile (hook + cierre extendidos). */
+const SCENE_SPECS = [
+  { id:  1, duration: 9.0,  theme: 'dark',  label: 'Gancho — no editado, programado' },
+  { id:  2, duration: 2.65, theme: 'light', label: 'Sistemas, no plantillas' },
+  { id:  3, duration: 2.65, theme: 'dark',  label: 'Conversión primero' },
+  { id:  4, duration: 2.65, theme: 'light', label: 'Discovery del negocio' },
+  { id:  5, duration: 2.65, theme: 'dark',  label: 'Arquitectura de oferta' },
+  { id:  6, duration: 2.65, theme: 'light', label: 'Recorrido diseñado' },
+  { id:  7, duration: 3.1,  theme: 'dark',  label: 'Experiencia desarrollada' },
+  { id:  8, duration: 2.55, theme: 'light', label: 'Sistema visual' },
+  { id:  9, duration: 3.1,  theme: 'dark',  label: 'Código escalable' },
+  { id: 10, duration: 2.65, theme: 'light', label: 'Optimización CRO' },
+  { id: 11, duration: 2.65, theme: 'dark',  label: 'Resultado final' },
+  { id: 12, duration: 9.0,  theme: 'light', label: 'CTA — comentá REEL' },
 ];
+
+let _t = 0;
+const SCENES = SCENE_SPECS.map((spec) => {
+  const row = {
+    id: spec.id,
+    start: _t,
+    duration: spec.duration,
+    theme: spec.theme,
+    label: spec.label,
+  };
+  _t += spec.duration;
+  return row;
+});
+
+const DURATION_SECONDS = _t;
+const TOTAL_FRAMES = Math.round(FPS * DURATION_SECONDS);
 
 const STATUS = {
   IDLE:    'Listo para generar una pequeña demostración de obsesión por el detalle.',
@@ -191,7 +206,7 @@ function App() {
     currentSec >= s.start && currentSec < s.start + s.duration);
   const activeIdx = activeScene === -1 ? SCENES.length - 1 : activeScene;
 
-  const timecode = `${currentSec.toFixed(2)}s / ${DURATION_SECONDS}.00s · ${FPS} FPS · SVG motion system`;
+  const timecode = `${currentSec.toFixed(2)}s / ${DURATION_SECONDS.toFixed(2)}s · ${FPS} FPS · SVG motion system`;
 
   return (
     <React.Fragment>

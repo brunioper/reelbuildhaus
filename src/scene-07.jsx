@@ -52,7 +52,7 @@ function Scene07({ p }) {
       <text x={90} y={552} fill={C.gray} fontFamily={FONT}
         fontSize={36} fontWeight={500} letterSpacing={-0.4}
         opacity={sub}>
-        Secciones, interacción y movimiento con propósito.
+        Interacción, secciones y movimiento con propósito.
       </text>
       <text x={90} y={596} fill={C.blue} fontFamily={FONT_MONO}
         fontSize={18} fontWeight={700} letterSpacing={3}

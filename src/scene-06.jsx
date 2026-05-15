@@ -1,201 +1,199 @@
-// Scene 06 — User Journey (13–15.5s, light)
-// "Diseñamos el recorrido." — floor plan with circulation flow.
+// Scene 06 — Recorrido (hold extendido · journey muy legible)
 
 const S6 = window.SHARED;
+const RL = window.REEL_LAYOUT;
 
 function Scene06({ p }) {
   const { C, FONT, FONT_MONO, VW,
-    seg, lerp, easeOut, clamp,
-    SheetChrome, DraftLine, BlueDot, DimLine } = S6;
+    lerp, easeOut, clamp,
+    SheetChrome, BlueDot, DimLine } = S6;
 
-  const hl1   = seg(p, 0.08, 0.28);
-  const hl2   = seg(p, 0.16, 0.36);
-  const sub   = seg(p, 0.26, 0.46);
-  const planP = seg(p, 0.34, 0.54);
-  const roomsP = seg(p, 0.42, 0.62);
-  const doorsP = seg(p, 0.50, 0.66);
-  const flowP = clamp((p - 0.54) / 0.40, 0, 1);
-  const annot = seg(p, 0.84, 0.96);
+  const { revealAfter } = RL;
 
-  // Floor plan area
-  const PX = 100, PY = 1050, PW = VW - 200, PH = 560;
+  const hl1 = revealAfter(p, 0.04, 0.14);
+  const hl2 = revealAfter(p, 0.12, 0.15);
+  const sub = revealAfter(p, 0.22, 0.16);
+  const journeyOp = revealAfter(p, 0.32, 0.18);
+  const planP = revealAfter(p, 0.38, 0.18);
+  const roomsP = revealAfter(p, 0.46, 0.16);
+  const doorsP = revealAfter(p, 0.54, 0.14);
+  const flowP = clamp((p - 0.52) / 0.38, 0, 1);
+  const annot = revealAfter(p, 0.78, 0.14);
 
-  // Rooms (4 rooms left-to-right, with circulation arrow path)
+  const PX = 92;
+  const PY = 1008;
+  const PW = VW - 184;
+  const PH = 540;
+  const CX = VW / 2;
+  const JY = 662;
+
   const ROOMS = [
-    { x: 0,    y: 0,   w: 220, h: 280, label: 'Llega',    sub: 'Primera impresión', door: { side: 'right', at: 140 } },
-    { x: 220,  y: 0,   w: 220, h: 280, label: 'Entiende', sub: 'Claridad', door: { side: 'right', at: 140 } },
-    { x: 440,  y: 0,   w: 220, h: 280, label: 'Confía',   sub: 'Prueba social', door: { side: 'right', at: 140 } },
-    { x: 660,  y: 0,   w: 220, h: 280, label: 'Contacta', sub: 'CTA final', door: null },
+    { x: 0, y: 0, w: 220, h: 260, label: 'Llega', sub: 'Impacto', door: { side: 'right', at: 132 } },
+    { x: 220, y: 0, w: 220, h: 260, label: 'Entiende', sub: 'Claridad', door: { side: 'right', at: 132 } },
+    { x: 440, y: 0, w: 220, h: 260, label: 'Confía', sub: 'Prueba', door: { side: 'right', at: 132 } },
+    { x: 660, y: 0, w: 220, h: 260, label: 'Contacta', sub: 'Acción', door: null },
   ];
 
-  // Lower rooms (annex: alternate paths)
   const ANNEX = [
-    { x: 220, y: 280, w: 220, h: 200, label: 'FAQ',     sub: 'Objeciones' },
-    { x: 440, y: 280, w: 220, h: 200, label: 'CASOS',   sub: 'Trabajo' },
+    { x: 220, y: 260, w: 220, h: 190, label: 'FAQ', sub: 'Objeciones' },
+    { x: 440, y: 260, w: 220, h: 190, label: 'Casos', sub: 'Portfolio' },
   ];
 
-  // Door symbol
-  const Door = ({ x, y, side }) => {
-    const a = side === 'right' ? `M${x},${y - 14} L${x},${y + 14}` : `M${x},${y - 14} L${x},${y + 14}`;
-    return (
-      <g opacity={doorsP}>
-        {/* Gap in wall */}
-        <line x1={x} y1={y - 14} x2={x} y2={y + 14}
-          stroke="#F4F6FB" strokeWidth={2.5} />
-        {/* Door arc */}
-        <path d={`M${x},${y - 14} A28,28 0 0 1 ${x + 28},${y + 14}`}
-          fill="none" stroke={C.gray} strokeWidth={0.8} opacity={0.7} />
-        <line x1={x} y1={y - 14} x2={x + 28} y2={y - 14}
-          stroke={C.gray} strokeWidth={1} />
-      </g>
-    );
-  };
+  const Door = ({ x, y }) => (
+    <g opacity={doorsP}>
+      <line x1={x} y1={y - 14} x2={x} y2={y + 14} stroke="#F4F6FB" strokeWidth={2.5} />
+      <path
+        d={`M${x},${y - 14} A28,28 0 0 1 ${x + 28},${y + 14}`}
+        fill="none"
+        stroke={C.gray}
+        strokeWidth={0.8}
+        opacity={0.7}
+      />
+      <line x1={x} y1={y - 14} x2={x + 28} y2={y - 14} stroke={C.gray} strokeWidth={1} />
+    </g>
+  );
 
-  // Flow dot position along path
   const flow = easeOut(flowP);
-  // Path: traverses 4 rooms left-to-right at y = 140 (center of upper row)
   const totalW = 880;
   const startX = PX + 110;
   const dotX = startX + totalW * flow;
-  const dotY = PY + 140;
+  const dotY = PY + 132;
 
   return (
-    <SheetChrome theme="light" p={p}
-      sheet="06" title="RECORRIDO / FLOOR PLAN" code="A.06"
-      label="USER CIRCULATION — PLAN VIEW" highlight={5}>
-
-      <text x={90} y={340} fill={C.navy} fontFamily={FONT}
-        fontSize={120} fontWeight={850} letterSpacing={-3}
+    <SheetChrome
+      theme="light"
+      p={p}
+      sheet="06"
+      title="RECORRIDO"
+      code="A.06"
+      label="PLANO DE FLUJO · USUARIO"
+      highlight={2}
+    >
+      <text x={92} y={334} fill={C.navy} fontFamily={FONT}
+        fontSize={118} fontWeight={850} letterSpacing={-3}
         opacity={hl1}>
         Diseñamos
       </text>
-      <text x={90} y={468} fill={C.navy} fontFamily={FONT}
-        fontSize={120} fontWeight={850} letterSpacing={-3}
+      <text x={92} y={458} fill={C.navy} fontFamily={FONT}
+        fontSize={118} fontWeight={850} letterSpacing={-3}
         opacity={hl2}>
         el recorrido.
       </text>
-      <text x={90} y={564} fill={C.gray} fontFamily={FONT}
-        fontSize={36} fontWeight={500} letterSpacing={-0.4}
+      <text x={92} y={548} fill={C.gray} fontFamily={FONT}
+        fontSize={38} fontWeight={520} letterSpacing={-0.4}
         opacity={sub}>
         De la primera impresión al contacto.
       </text>
-      <text x={90} y={608} fill={C.blue} fontFamily={FONT_MONO}
-        fontSize={18} fontWeight={700} letterSpacing={3}
-        opacity={sub}>
-        PLAN VIEW · CIRCULATION
+
+      {/* Journey hero — muy grande para mobile */}
+      <text
+        x={CX}
+        y={JY}
+        fill={C.navy}
+        fontFamily={FONT}
+        fontSize={46}
+        fontWeight={850}
+        textAnchor="middle"
+        letterSpacing={-0.5}
+        opacity={journeyOp}
+      >
+        Llega → Entiende → Confía → Contacta
+      </text>
+      <text x={CX} y={JY + 42} fill={C.blue} fontFamily={FONT_MONO}
+        fontSize={17} fontWeight={700} letterSpacing={3}
+        textAnchor="middle"
+        opacity={journeyOp * 0.95}>
+        UNA SOLA LÍNEA · UN SOLO OBJETIVO
       </text>
 
-      {/* Plan outer wall (thicker stroke) */}
       <g opacity={planP}>
         <rect x={PX} y={PY} width={PW} height={PH}
-          fill="#FFFFFF" stroke={C.navy} strokeWidth={2.5} />
-        {/* Inner trim */}
+          fill="#FFFFFF" stroke={C.navy} strokeWidth={2.5} rx={4} />
         <rect x={PX + 4} y={PY + 4} width={PW - 8} height={PH - 8}
-          fill="none" stroke={C.navy} strokeWidth={0.6} opacity={0.3} />
+          fill="none" stroke={C.navy} strokeWidth={0.6} opacity={0.28} />
       </g>
 
-      {/* Rooms — interior walls */}
-      {roomsP > 0 && ROOMS.map((r, i) => (
-        <g key={i} opacity={roomsP}>
-          <rect x={PX + r.x} y={PY + r.y} width={r.w} height={r.h}
-            fill="none" stroke={C.navy} strokeWidth={1.2} />
-          {/* Room label */}
-          <text x={PX + r.x + r.w / 2} y={PY + r.y + 50} fill={C.navy}
-            fontFamily={FONT} fontSize={20} fontWeight={800}
-            textAnchor="middle" letterSpacing={1.5}>
-            {r.label}
-          </text>
-          <text x={PX + r.x + r.w / 2} y={PY + r.y + 70} fill={C.gray}
-            fontFamily={FONT_MONO} fontSize={10} fontWeight={700}
-            textAnchor="middle" letterSpacing={2}>
-            {r.sub}
-          </text>
-          {/* Room number */}
-          <text x={PX + r.x + 12} y={PY + r.y + 18} fill={C.blue}
-            fontFamily={FONT_MONO} fontSize={9} fontWeight={800} letterSpacing={2}>
-            R0{i + 1}
-          </text>
-          {/* Floor area marker (small) */}
-          <text x={PX + r.x + r.w - 12} y={PY + r.y + 18} fill="rgba(7,29,53,0.4)"
-            fontFamily={FONT_MONO} fontSize={9} fontWeight={600}
-            textAnchor="end" letterSpacing={1}>
-            12.5m²
-          </text>
-        </g>
-      ))}
+      {roomsP > 0 &&
+        ROOMS.map((r, i) => (
+          <g key={i} opacity={roomsP}>
+            <rect x={PX + r.x} y={PY + r.y} width={r.w} height={r.h}
+              fill="none" stroke={C.navy} strokeWidth={1.2} />
+            <text x={PX + r.x + r.w / 2} y={PY + r.y + 52} fill={C.navy}
+              fontFamily={FONT} fontSize={26} fontWeight={850}
+              textAnchor="middle" letterSpacing={-0.2}>
+              {r.label}
+            </text>
+            <text x={PX + r.x + r.w / 2} y={PY + r.y + 82} fill={C.gray}
+              fontFamily={FONT_MONO} fontSize={13} fontWeight={700}
+              textAnchor="middle" letterSpacing={2}>
+              {r.sub}
+            </text>
+            <text x={PX + r.x + 14} y={PY + r.y + 22} fill={C.blue}
+              fontFamily={FONT_MONO} fontSize={11} fontWeight={800} letterSpacing={2}>
+              {`0${i + 1}`}
+            </text>
+          </g>
+        ))}
 
-      {/* Annex rooms (lower) */}
-      {roomsP > 0 && ANNEX.map((r, i) => (
-        <g key={i} opacity={roomsP * 0.65}>
-          <rect x={PX + r.x} y={PY + r.y} width={r.w} height={r.h}
-            fill="rgba(7,29,53,0.03)" stroke={C.navy} strokeWidth={0.8}
-            strokeDasharray="4 3" />
-          <text x={PX + r.x + r.w / 2} y={PY + r.y + 100} fill={C.gray}
-            fontFamily={FONT} fontSize={16} fontWeight={700}
-            textAnchor="middle" letterSpacing={1.5}>
-            {r.label}
-          </text>
-          <text x={PX + r.x + r.w / 2} y={PY + r.y + 120} fill={C.gray}
-            fontFamily={FONT_MONO} fontSize={9} fontWeight={600}
-            textAnchor="middle" letterSpacing={1.5}>
-            {r.sub}
-          </text>
-        </g>
-      ))}
+      {roomsP > 0 &&
+        ANNEX.map((r, i) => (
+          <g key={i} opacity={roomsP * 0.62}>
+            <rect x={PX + r.x} y={PY + r.y} width={r.w} height={r.h}
+              fill="rgba(7,29,53,0.03)" stroke={C.navy} strokeWidth={0.8}
+              strokeDasharray="4 3" />
+            <text x={PX + r.x + r.w / 2} y={PY + r.y + 98} fill={C.gray}
+              fontFamily={FONT} fontSize={17} fontWeight={750}
+              textAnchor="middle">
+              {r.label}
+            </text>
+          </g>
+        ))}
 
-      {/* Doors between rooms */}
       {ROOMS.slice(0, 3).map((r, i) => (
-        <Door key={i} x={PX + r.x + r.w} y={PY + r.door.at} side="right" />
+        <Door key={i} x={PX + r.x + r.w} y={PY + r.door.at} />
       ))}
 
-      {/* Entry arrow (left of plan) */}
       <g opacity={doorsP}>
-        <path d={`M${PX - 40},${PY + 140} L${PX - 6},${PY + 140}`}
-          stroke={C.blue} strokeWidth={1.5} />
-        <path d={`M${PX - 6},${PY + 140} l-10,-6 l0,12 z`} fill={C.blue} />
-        <text x={PX - 40} y={PY + 124} fill={C.blue} fontFamily={FONT_MONO}
-          fontSize={9} fontWeight={700} letterSpacing={2}>
+        <path d={`M${PX - 40},${PY + 132} L${PX - 6},${PY + 132}`}
+          stroke={C.blue} strokeWidth={1.6} />
+        <path d={`M${PX - 6},${PY + 132} l-10,-6 l0,12 z`} fill={C.blue} />
+        <text x={PX - 42} y={PY + 118} fill={C.blue} fontFamily={FONT_MONO}
+          fontSize={11} fontWeight={700} letterSpacing={2}>
           ENTRADA
         </text>
       </g>
 
-      {/* Circulation path (dashed) */}
       {flowP > 0 && (
         <g>
-          <path d={`M${startX},${PY + 140} L${PX + 880 - 20},${PY + 140}`}
-            stroke={C.blue} strokeWidth={1} strokeDasharray="4 4" opacity={0.6} />
-          {/* Step markers along path */}
-          {[0.25, 0.50, 0.75].map((t, i) => (
-            <circle key={i} cx={lerp(startX, PX + 880 - 20, t)} cy={PY + 140}
-              r={2} fill={C.blue} opacity={0.6} />
+          <path d={`M${startX},${PY + 132} L${PX + 880 - 20},${PY + 132}`}
+            stroke={C.blue} strokeWidth={1.2} strokeDasharray="5 5" opacity={0.55} />
+          {[0.25, 0.5, 0.75].map((t, i) => (
+            <circle key={i} cx={lerp(startX, PX + 880 - 20, t)} cy={PY + 132}
+              r={3} fill={C.blue} opacity={0.55} />
           ))}
         </g>
       )}
 
-      {/* Travelling user dot */}
-      {flowP > 0 && <BlueDot x={dotX} y={dotY} r={8}
-        opacity={clamp(flowP * 5, 0, 1)} glow />}
+      {flowP > 0 && (
+        <BlueDot x={dotX} y={dotY} r={9} opacity={clamp(flowP * 4.2, 0, 1)} glow />
+      )}
 
-      {/* Exit pill at right (CONTACTA) */}
-      {flowP > 0.8 && (
-        <g opacity={easeOut(clamp((flowP - 0.8) / 0.2, 0, 1))}>
-          <rect x={PX + 700} y={PY + 110} width={150} height={60}
-            rx={30} fill={C.blue} />
-          <text x={PX + 775} y={PY + 145} fill={C.white}
-            fontFamily={FONT} fontSize={13} fontWeight={700}
-            textAnchor="middle" letterSpacing={1.5}>
-            BRIEF →
+      {flowP > 0.78 && (
+        <g opacity={easeOut(clamp((flowP - 0.78) / 0.22, 0, 1))}>
+          <rect x={PX + 698} y={PY + 102} width={164} height={58}
+            rx={29} fill={C.blue} />
+          <text x={PX + 780} y={PY + 138} fill={C.white}
+            fontFamily={FONT} fontSize={15} fontWeight={780}
+            textAnchor="middle" letterSpacing={1.2}>
+            CONTACTO →
           </text>
         </g>
       )}
 
-      {/* Dimensions */}
       <g opacity={annot}>
-        <DimLine x1={PX} y1={PY - 30} x2={PX + PW} y2={PY - 30}
-          value="44.0 m" theme="light" offset={0} />
+        <DimLine x1={PX} y1={PY - 28} x2={PX + PW} y2={PY - 28}
+          value="FLUJO · 4 PASOS" theme="light" offset={0} />
       </g>
-
-
     </SheetChrome>
   );
 }

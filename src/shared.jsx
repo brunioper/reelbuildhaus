@@ -28,6 +28,7 @@ const clamp = (v, lo = 0, hi = 1) => Math.max(lo, Math.min(hi, v));
 const lerp  = (a, b, t) => a + (b - a) * t;
 const easeOut  = (t) => 1 - Math.pow(1 - t, 3);
 const easeOut2 = (t) => 1 - Math.pow(1 - t, 2);
+const easeIn   = (t) => Math.pow(clamp(t, 0, 1), 3);
 const easeInOut = (t) =>
   t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 const seg = (t, start, end) => easeOut(clamp((t - start) / (end - start)));
@@ -140,7 +141,7 @@ function TitleBlock({ theme, opacity = 1, sheet, title, scene }) {
   // BIGGER for mobile legibility — content reads cleanly at 9:16 phone size.
   const W = 520, H = 148;
   const X = VW - 80 - W;
-  const Y = VH - 80 - H;
+  const Y = VH - 140 - H;
 
   return (
     <g opacity={opacity}>
@@ -192,19 +193,20 @@ function SheetEyebrow({ theme, opacity = 1, code, label }) {
   const ink = theme === 'dark' ? 'rgba(247,250,255,0.75)' : 'rgba(7,29,53,0.65)';
   const sub = theme === 'dark' ? 'rgba(247,250,255,0.30)' : 'rgba(7,29,53,0.25)';
   const edge = 80;
+  const y0 = 148;
   return (
     <g opacity={opacity}>
-      <text x={edge} y={118} fill={C.blue} fontFamily={FONT_MONO}
+      <text x={edge} y={y0} fill={C.blue} fontFamily={FONT_MONO}
         fontSize={17} fontWeight={800} letterSpacing={3}>
         {code}
       </text>
-      <text x={edge} y={146} fill={ink} fontFamily={FONT_MONO}
+      <text x={edge} y={y0 + 28} fill={ink} fontFamily={FONT_MONO}
         fontSize={16} fontWeight={700} letterSpacing={2.5}>
         {label}
       </text>
-      <line x1={edge} y1={164} x2={VW - edge} y2={164}
+      <line x1={edge} y1={y0 + 46} x2={VW - edge} y2={y0 + 46}
         stroke={sub} strokeWidth={0.8} />
-      <line x1={VW - edge - 96} y1={164} x2={VW - edge} y2={164}
+      <line x1={VW - edge - 96} y1={y0 + 46} x2={VW - edge} y2={y0 + 46}
         stroke={C.blue} strokeWidth={2} />
     </g>
   );
@@ -612,6 +614,14 @@ function SVGDefs() {
           <feMergeNode in="SourceGraphic" />
         </feMerge>
       </filter>
+      {/* Soft reveal blur — kept subtle for premium entrances */}
+      <filter id="softRevealBlur" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="2.2" in="SourceGraphic" result="b" />
+        <feMerge>
+          <feMergeNode in="b" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
     </defs>
   );
 }
@@ -619,10 +629,10 @@ function SVGDefs() {
 // ─── Default scene chrome wrapper — sheet that all scenes can use ────────────
 
 function SheetChrome({ theme, p, sheet, title, code, label, highlight, children, showTitleBlock = true }) {
-  const gridP   = seg(p, 0,    0.12);
-  const frameP  = seg(p, 0.02, 0.16);
-  const eyebrowP = seg(p, 0.05, 0.20);
-  const blockP  = seg(p, 0.08, 0.24);
+  const gridP    = seg(p, 0,    0.14);
+  const frameP   = seg(p, 0.02, 0.18);
+  const eyebrowP = seg(p, 0.05, 0.22);
+  const blockP   = seg(p, 0.08, 0.26);
 
   return (
     <g>
@@ -642,7 +652,7 @@ function SheetChrome({ theme, p, sheet, title, code, label, highlight, children,
 // Export everything to window so other scene files can use them
 window.SHARED = {
   C, FONT, FONT_MONO, VW, VH,
-  clamp, lerp, easeOut, easeOut2, easeInOut, seg, linseg,
+  clamp, lerp, easeOut, easeOut2, easeIn, easeInOut, seg, linseg,
   SceneBg, DraftGrid, SheetFrame, SheetGridLabels, TitleBlock,
   SheetEyebrow, DimLine, DetailBubble, SectionCut, Hatch, HatchPattern,
   NorthArrow, ScaleBar, DraftLine, DraftRect, DraftCircle, DraftText,

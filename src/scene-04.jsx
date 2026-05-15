@@ -6,12 +6,12 @@ const RL = window.REEL_LAYOUT;
 
 function Scene04({ p }) {
   const { C, FONT, FONT_MONO, VW,
-    seg, clamp,
+    clamp,
     SheetChrome, DraftRect, BlueDot,
     NorthArrow,
   } = S4;
 
-  const { REEL, MultilineText, shrinkToFitLines, wrapTextToLines } = RL;
+  const { REEL, MultilineText, shrinkToFitLines, wrapTextToLines, revealAfter } = RL;
 
   const edge = REEL.SAFE_X;
   const colW = REEL.CONTENT_W;
@@ -41,12 +41,12 @@ function Scene04({ p }) {
     3,
   );
 
-  const hl    = seg(p, 0.08, 0.34);
-  const sub   = seg(p, 0.18, 0.46);
-  const plotP = seg(p, 0.34, 0.56);
-  const blocks = seg(p, 0.42, 0.70);
+  const hl = revealAfter(p, 0.05, 0.15);
+  const sub = revealAfter(p, 0.14, 0.16);
+  const plotP = revealAfter(p, 0.28, 0.14);
+  const blocks = revealAfter(p, 0.38, 0.2);
 
-  const firstBaseline = 300;
+  const firstBaseline = REEL.SAFE_Y + 154;
   const lhH = hlFit.size * 1.06;
   const lastHB = firstBaseline + (hlFit.lines.length - 1) * lhH;
   const subBase = lastHB + REEL.HEAD_SUB_GAP + subFit.size;
